@@ -10,8 +10,7 @@
 
 #include <SDL3/SDL.h>
 #include <SDL3_ttf/SDL_ttf.h>
-#include <rect.hpp>
-#include <frect.hpp>
+#include <texture.hpp>
 
 using namespace std;
 
@@ -46,8 +45,8 @@ class app {
             int width;
             int height;
             string name;
-        }
-        ;
+        };
+        
         /**
          * @brief Creates an SDL window with the specified parameters
          * 
@@ -66,11 +65,10 @@ class app {
 
         char buffer[1024];
         char* pathname = getcwd(buffer, 1024);
-        bool renderMode; // render/surface mode flag
     public:
         SDL_Window *Window;
-        SDL_Surface *Surface;
-        SDL_Renderer *Render;
+        SDL_Surface *Surface = nullptr;
+        SDL_Renderer *Render = nullptr;
         bool quit = false; // flag for quitting the application
         vector<keyBindStruct> keyBindings;
         vector<keyBindStruct> keyUpBindings;
@@ -89,12 +87,11 @@ class app {
          * @param render Use Renderer (true) or Surface (false)
          * @param fontpath Path to the font file (optional)
          */
-        void init(int width, int height, string name, bool render = false, string fontpath = "") {
+        void init(int width, int height, string name, bool surface = false, string fontpath = "") {
             createWindow(width, height, name);
             font = fontpath.empty() ? font : fontpath;
 
-            renderMode = render;
-            if (!render) {
+            if (surface) {
                 Surface = SDL_GetWindowSurface(Window);
                 SDL_FillSurfaceRect(Surface, NULL, SDL_MapSurfaceRGB(Surface, 0, 0, 0));
             } else {
@@ -122,7 +119,7 @@ class app {
             color.g = g;
             color.b = b;
 
-            renderMode 
+            Render != nullptr 
                 ? (SDL_SetRenderDrawColor(Render, r, g, b, 255), SDL_RenderClear(Render))
                 : SDL_FillSurfaceRect(Surface, NULL, SDL_MapSurfaceRGB(Surface, r, g, b));
         }
@@ -133,7 +130,7 @@ class app {
          * Depending on the rendering mode, either the Renderer or Surface will be updated
          */
         void update() {
-            renderMode ? SDL_RenderPresent(Render) :  SDL_UpdateWindowSurface(Window);
+            Render != nullptr ? SDL_RenderPresent(Render) :  SDL_UpdateWindowSurface(Window);
         }
         
         /**
