@@ -2,11 +2,11 @@
 
 int main()
 {
-    app myapp;
+    insdl::App myapp;
     myapp.init(700, 700, "My InSDL Window");
 
     while (!myapp.quit) {
-        handleEvent(myapp);
+        insdl::handleEvent(myapp);
         
         // code here
 

@@ -4,10 +4,12 @@
 #include <app.hpp>
 #include <functional>
 
+namespace insdl {
+
 /**
  * @note Not used
  * @brief Handles the application quit event
- *  
+ *
  * @param app Reference to your application object
  */
 void exitEvent(app& app) {
@@ -68,5 +70,7 @@ void handleEvent(app& app) {
         }
     }
 }
+
+} // namespace insdl
 
 #endif

@@ -5,9 +5,11 @@
 #include <chrono>
 #include <thread>
 
+namespace insdl {
+
 /**
  * @brief Pauses the execution of the program for a specified number of milliseconds
- * 
+ *
  * @param msec Number of milliseconds to delay
  */
 void delayms(int msec)
@@ -44,5 +46,7 @@ void delayhr(int hour)
 {
     std::this_thread::sleep_for(std::chrono::hours(hour));
 }
+
+} // namespace insdl
 
 #endif

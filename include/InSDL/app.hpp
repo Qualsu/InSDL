@@ -12,9 +12,11 @@
 #include <SDL3_ttf/SDL_ttf.h>
 #include <texture.hpp>
 
+namespace insdl {
+
 /**
  * @brief Class for managing an SDL application
- * 
+ *
  * Responsible for creating a window, rendering, input, and other basic operations
  */
 class app {
@@ -58,15 +60,15 @@ class app {
             window.height = height;
             window.name = name;
 
-            Window = SDL_CreateWindow(name.c_str(), width, height, 0);
+            SDLWindow = SDL_CreateWindow(name.c_str(), width, height, 0);
         }
 
         char buffer[1024];
         char* pathname = getcwd(buffer, 1024);
     public:
-        SDL_Window *Window;
-        SDL_Surface *Surface = nullptr;
-        SDL_Renderer *Render = nullptr;
+        SDL_Window *SDLWindow;
+        SDL_Surface *SDLSurface = nullptr;
+        SDL_Renderer *SDLRender = nullptr;
         bool quit = false; // flag for quitting the application
         std::vector<keyBindStruct> keyBindings;
         std::vector<keyBindStruct> keyUpBindings;
@@ -90,10 +92,10 @@ class app {
             font = fontpath.empty() ? font : fontpath;
 
             if (surface) {
-                Surface = SDL_GetWindowSurface(Window);
-                SDL_FillSurfaceRect(Surface, NULL, SDL_MapSurfaceRGB(Surface, 0, 0, 0));
+                SDLSurface = SDL_GetWindowSurface(SDLWindow);
+                SDL_FillSurfaceRect(SDLSurface, NULL, SDL_MapSurfaceRGB(SDLSurface, 0, 0, 0));
             } else {
-                Render = SDL_CreateRenderer(Window, NULL);
+                SDLRender = SDL_CreateRenderer(SDLWindow, NULL);
                 TTF_Init();
             }
         }
@@ -127,9 +129,9 @@ class app {
             color.g = g;
             color.b = b;
 
-            Render != nullptr 
-                ? (SDL_SetRenderDrawColor(Render, r, g, b, 255), SDL_RenderClear(Render))
-                : SDL_FillSurfaceRect(Surface, NULL, SDL_MapSurfaceRGB(Surface, r, g, b));
+            SDLRender != nullptr 
+                ? (SDL_SetRenderDrawColor(SDLRender, r, g, b, 255), SDL_RenderClear(SDLRender))
+                : SDL_FillSurfaceRect(SDLSurface, NULL, SDL_MapSurfaceRGB(SDLSurface, r, g, b));
         }
 
         /**
@@ -138,7 +140,7 @@ class app {
          * Depending on the rendering mode, either the Renderer or Surface will be updated
          */
         void update() {
-            Render != nullptr ? SDL_RenderPresent(Render) :  SDL_UpdateWindowSurface(Window);
+            SDLRender != nullptr ? SDL_RenderPresent(SDLRender) :  SDL_UpdateWindowSurface(SDLWindow);
         }
         
         /**
@@ -148,7 +150,7 @@ class app {
          */
         void setIcon(const texture& icon) {
             SDL_Surface *iconSurface = icon.get().surface;
-            SDL_SetWindowIcon(Window, iconSurface);
+            SDL_SetWindowIcon(SDLWindow, iconSurface);
         }
 
         /**
@@ -172,8 +174,8 @@ class app {
             window.height = height == -1 ? window.height : height;
             window.name = name.empty() ? window.name : name;
 
-            SDL_SetWindowSize(Window, window.width, window.height);
-            SDL_SetWindowTitle(Window, window.name.c_str());
+            SDL_SetWindowSize(SDLWindow, window.width, window.height);
+            SDL_SetWindowTitle(SDLWindow, window.name.c_str());
         }
 
         /**
@@ -218,18 +220,22 @@ class app {
          * @brief Terminates the application, frees SDL resources
          */
         void exit() {
-            if (Render) {
-                SDL_DestroyRenderer(Render);
-                Render = nullptr;
+            if (SDLRender) {
+                SDL_DestroyRenderer(SDLRender);
+                SDLRender = nullptr;
             }
-            if (Window) {
-                SDL_DestroyWindow(Window);
-                Window = nullptr;
+            if (SDLWindow) {
+                SDL_DestroyWindow(SDLWindow);
+                SDLWindow = nullptr;
             }
-            Surface = nullptr;
+            SDLSurface = nullptr;
             TTF_Quit();
             SDL_Quit();
         }
 };
+
+using App = app;
+
+} // namespace insdl
 
 #endif

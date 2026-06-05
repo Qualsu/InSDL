@@ -7,9 +7,11 @@
 #include <string>
 #include <utility>
 
+namespace insdl {
+
 /**
  * @brief Class for working with text using SDL_ttf
- * 
+ *
  * Allows creating text objects with a specified font, color, and content,
  * as well as modifying the text and color
  */
@@ -153,5 +155,9 @@ class text {
             return os;
         }
 };
+
+using Text = text;
+
+} // namespace insdl
 
 #endif

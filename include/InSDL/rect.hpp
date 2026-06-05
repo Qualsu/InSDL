@@ -7,6 +7,8 @@
 #include <texture.hpp>
 #include <text.hpp>
 
+namespace insdl {
+
 /**
 * @brief Class for representing and managing a rectangle with color
 *
@@ -463,4 +465,9 @@ class rect {
             return os;
         }
 };
+
+using Rect = rect;
+
+} // namespace insdl
+
 #endif

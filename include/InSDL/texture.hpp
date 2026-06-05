@@ -7,9 +7,11 @@
 #include <string>
 #include <utility>
 
+namespace insdl {
+
 /**
  * @brief Class for working with textures
- * 
+ *
  * Allows loading an image from a file and creating a texture for rendering
 */
 class texture {
@@ -85,5 +87,9 @@ class texture {
             return os;
         }
 };
+
+using Texture = texture;
+
+} // namespace insdl
 
 #endif

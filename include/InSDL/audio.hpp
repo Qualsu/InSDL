@@ -6,9 +6,11 @@
 #include <string>
 #include <utility>
 
+namespace insdl {
+
 /**
  * @brief Class for working with WAV audio files
- * 
+ *
  * Allows loading WAV files, playing, pausing, resuming, and stopping audio
  * Uses SDL_AudioStream and SDL_AudioDevice to manage sound
  */
@@ -128,5 +130,9 @@ class audio {
             return os;
         }
 };
+
+using Audio = audio;
+
+} // namespace insdl
 
 #endif
