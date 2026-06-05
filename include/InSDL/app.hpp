@@ -10,6 +10,7 @@
 
 #include <SDL3/SDL.h>
 #include <SDL3_ttf/SDL_ttf.h>
+#include <InSDL/input.hpp>
 #include <InSDL/texture.hpp>
 
 namespace insdl {
@@ -77,6 +78,7 @@ class app {
         std::vector<keyBindStruct> keyUpBindings;
         std::vector<mouseBindStruct> mouseBindings;
         std::vector<mouseMotionBindStruct> mouseMotionBindings;
+        inputState input;
         colorStruct color;
         windowStruct window;
         std::string font = defaultFontPath(); // default font for text rendering

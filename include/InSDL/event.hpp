@@ -30,6 +30,8 @@ void exitEvent(app& application) {
  * @param app Reference to your application object
  */
 void handleEvent(app& application) {
+    application.input.beginFrame();
+
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
         if (event.type == SDL_EVENT_QUIT) {
@@ -37,6 +39,8 @@ void handleEvent(app& application) {
         } 
          else if (event.type == SDL_EVENT_KEY_DOWN) {
             SDL_Scancode scancode = event.key.scancode;
+            application.input.setKeyDown(scancode);
+
             for (auto& binding : application.keyBindings) {
                 if (binding.key == scancode) {
                     binding.callback();
@@ -46,6 +50,8 @@ void handleEvent(app& application) {
         }
         else if (event.type == SDL_EVENT_KEY_UP) {
             SDL_Scancode scancode = event.key.scancode;
+            application.input.setKeyUp(scancode);
+
             for (auto &binding : application.keyUpBindings) {
                 if (scancode == binding.key) {
                     binding.callback();
@@ -62,8 +68,10 @@ void handleEvent(app& application) {
             }
         }
         else if (event.type == SDL_EVENT_MOUSE_MOTION) {
-            int x = event.motion.x;
-            int y = event.motion.y;
+            int x = static_cast<int>(event.motion.x);
+            int y = static_cast<int>(event.motion.y);
+            application.input.setMousePosition(event.motion.x, event.motion.y);
+
             for (const auto& binding : application.mouseMotionBindings) {
                 binding.callback(x, y);
             }

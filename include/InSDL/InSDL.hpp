@@ -3,6 +3,7 @@
 
 #include <InSDL/app.hpp>
 #include <InSDL/event.hpp>
+#include <InSDL/input.hpp>
 #include <InSDL/rect.hpp>
 #include <InSDL/texture.hpp>
 #include <InSDL/text.hpp>
