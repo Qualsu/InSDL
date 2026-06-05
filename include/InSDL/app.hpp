@@ -60,19 +60,36 @@ class app {
          * @param name Name of the window
          */
         void createWindow(int width, int height, std::string name){
-            SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
-            window.width = width;
-            window.height = height;
-            window.name = name;
+            if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO)) {
+                setError("SDL_Init");
+                return;
+            }
+            windowData.width = width;
+            windowData.height = height;
+            windowData.name = name;
 
             windowHandle = SDL_CreateWindow(name.c_str(), width, height, 0);
+            if (!windowHandle) {
+                setError("SDL_CreateWindow");
+            }
         }
+
+        void setError(const std::string& context) {
+            const char* sdlError = SDL_GetError();
+            errorMessage = context + " failed";
+            if (sdlError && sdlError[0] != '\0') {
+                errorMessage += ": ";
+                errorMessage += sdlError;
+            }
+        }
+
         Uint64 lastFrameTicksNs = 0;
         float deltaTimeSeconds = 0.0f;
-    public:
+        std::string errorMessage;
         SDL_Window *windowHandle = nullptr;
         SDL_Surface *windowSurface = nullptr;
         SDL_Renderer *renderer = nullptr;
+    public:
         bool quit = false; // flag for quitting the application
         std::vector<keyBindStruct> keyBindings;
         std::vector<keyBindStruct> keyUpBindings;
@@ -80,7 +97,7 @@ class app {
         std::vector<mouseMotionBindStruct> mouseMotionBindings;
         inputState input;
         colorStruct color;
-        windowStruct window;
+        windowStruct windowData;
         std::string font = defaultFontPath(); // default font for text rendering
 
         /**
@@ -93,15 +110,34 @@ class app {
          * @param fontPath Path to the font file (optional)
          */
         void init(int width, int height, std::string name, bool surface = false, std::string fontPath = "") {
+            errorMessage.clear();
             createWindow(width, height, name);
+            if (!windowHandle) {
+                return;
+            }
+
             font = fontPath.empty() ? font : fontPath;
 
             if (surface) {
                 windowSurface = SDL_GetWindowSurface(windowHandle);
-                SDL_FillSurfaceRect(windowSurface, NULL, SDL_MapSurfaceRGB(windowSurface, 0, 0, 0));
+                if (!windowSurface) {
+                    setError("SDL_GetWindowSurface");
+                    return;
+                }
+                if (!SDL_FillSurfaceRect(windowSurface, NULL, SDL_MapSurfaceRGB(windowSurface, 0, 0, 0))) {
+                    setError("SDL_FillSurfaceRect");
+                    return;
+                }
             } else {
                 renderer = SDL_CreateRenderer(windowHandle, NULL);
-                TTF_Init();
+                if (!renderer) {
+                    setError("SDL_CreateRenderer");
+                    return;
+                }
+                if (!TTF_Init()) {
+                    setError("TTF_Init");
+                    return;
+                }
             }
 
             lastFrameTicksNs = SDL_GetTicksNS();
@@ -117,6 +153,35 @@ class app {
         ~app() {
             exit();
         }
+
+        /**
+         * @brief Returns true if the application was initialized successfully.
+         */
+        bool ok() const {
+            return errorMessage.empty() && windowHandle && (renderer || windowSurface);
+        }
+
+        /**
+         * @brief Returns the last SDL-related error message.
+         */
+        std::string error() const {
+            return errorMessage;
+        }
+
+        /**
+         * @brief Get SDL_Window
+         */
+        SDL_Window* window() const { return windowHandle; }
+
+        /**
+         * @brief Get SDL_Renderer
+         */
+        SDL_Renderer* renderer() const { return renderer; }
+
+        /**
+         * @brief Get SDL_Surface
+         */
+        SDL_Surface* surface() const { return windowSurface; }
 
         /**
          * @brief Clears the window with the currently stored color
@@ -137,9 +202,21 @@ class app {
             color.g = g;
             color.b = b;
 
-            renderer != nullptr
-                ? (SDL_SetRenderDrawColor(renderer, r, g, b, 255), SDL_RenderClear(renderer))
-                : SDL_FillSurfaceRect(windowSurface, NULL, SDL_MapSurfaceRGB(windowSurface, r, g, b));
+            if (renderer) {
+                if (!SDL_SetRenderDrawColor(renderer, r, g, b, 255)) {
+                    setError("SDL_SetRenderDrawColor");
+                    return;
+                }
+                if (!SDL_RenderClear(renderer)) {
+                    setError("SDL_RenderClear");
+                }
+            } else if (windowSurface) {
+                if (!SDL_FillSurfaceRect(windowSurface, NULL, SDL_MapSurfaceRGB(windowSurface, r, g, b))) {
+                    setError("SDL_FillSurfaceRect");
+                }
+            } else {
+                errorMessage = "Cannot fill: app is not initialized";
+            }
         }
 
         /**
@@ -155,7 +232,17 @@ class app {
          * Depending on the rendering mode, either the Renderer or Surface will be updated
          */
         void update() {
-            renderer != nullptr ? SDL_RenderPresent(renderer) :  SDL_UpdateWindowSurface(windowHandle);
+            if (renderer) {
+                if (!SDL_RenderPresent(renderer)) {
+                    setError("SDL_RenderPresent");
+                }
+            } else if (windowHandle) {
+                if (!SDL_UpdateWindowSurface(windowHandle)) {
+                    setError("SDL_UpdateWindowSurface");
+                }
+            } else {
+                errorMessage = "Cannot update: app is not initialized";
+            }
 
             const Uint64 now = SDL_GetTicksNS();
             deltaTimeSeconds = static_cast<float>(now - lastFrameTicksNs) / 1000000000.0f;
@@ -176,7 +263,17 @@ class app {
          */
         void setIcon(const texture& icon) {
             SDL_Surface *iconSurface = icon.get().surface;
-            SDL_SetWindowIcon(windowHandle, iconSurface);
+            if (!windowHandle) {
+                errorMessage = "Cannot set icon: app is not initialized";
+                return;
+            }
+            if (!iconSurface) {
+                errorMessage = "Cannot set icon: texture surface is empty";
+                return;
+            }
+            if (!SDL_SetWindowIcon(windowHandle, iconSurface)) {
+                setError("SDL_SetWindowIcon");
+            }
         }
 
         /**
@@ -196,12 +293,21 @@ class app {
          * @param name New title of the window (optional)
          */
         void change(int width = -1, int height = -1, std::string name = "") {
-            window.width = width == -1 ? window.width : width;
-            window.height = height == -1 ? window.height : height;
-            window.name = name.empty() ? window.name : name;
+            windowData.width = width == -1 ? windowData.width : width;
+            windowData.height = height == -1 ? windowData.height : height;
+            windowData.name = name.empty() ? windowData.name : name;
 
-            SDL_SetWindowSize(windowHandle, window.width, window.height);
-            SDL_SetWindowTitle(windowHandle, window.name.c_str());
+            if (!windowHandle) {
+                errorMessage = "Cannot change window: app is not initialized";
+                return;
+            }
+            if (!SDL_SetWindowSize(windowHandle, windowData.width, windowData.height)) {
+                setError("SDL_SetWindowSize");
+                return;
+            }
+            if (!SDL_SetWindowTitle(windowHandle, windowData.name.c_str())) {
+                setError("SDL_SetWindowTitle");
+            }
         }
 
         /**

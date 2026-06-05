@@ -28,6 +28,16 @@ class text {
 
         SDL_Renderer *renderer = nullptr;
         textData data;
+        std::string errorMessage;
+
+        void setError(const std::string& context) {
+            const char* sdlError = SDL_GetError();
+            errorMessage = context + " failed";
+            if (sdlError && sdlError[0] != '\0') {
+                errorMessage += ": ";
+                errorMessage += sdlError;
+            }
+        }
 
         void destroyRendered() {
             if (data.surface) {
@@ -38,6 +48,32 @@ class text {
                 SDL_DestroyTexture(data.texture);
                 data.texture = nullptr;
             }
+        }
+
+        bool renderText() {
+            if (!renderer) {
+                errorMessage = "Cannot render text: renderer is null";
+                return false;
+            }
+            if (!data.font) {
+                errorMessage = "Cannot render text: font is not loaded";
+                return false;
+            }
+
+            data.surface = TTF_RenderText_Solid(data.font, data.text.c_str(), data.text.length(), data.color);
+            if (!data.surface) {
+                setError("TTF_RenderText_Solid(\"" + data.text + "\")");
+                return false;
+            }
+
+            data.texture = SDL_CreateTextureFromSurface(renderer, data.surface);
+            if (!data.texture) {
+                setError("SDL_CreateTextureFromSurface(text)");
+                return false;
+            }
+
+            errorMessage.clear();
+            return true;
         }
     public:
         /**
@@ -55,12 +91,22 @@ class text {
          */
         text(SDL_Renderer *renderer, const std::string& textContent, std::string fontPath, Uint8 r = 255, Uint8 g = 255, Uint8 b = 255) {
             data.color = {r, g, b, 255};
-            data.font = TTF_OpenFont(fontPath.c_str(), 128);
-            data.surface = TTF_RenderText_Solid(data.font, textContent.c_str(), textContent.length(), data.color);
-            data.texture = SDL_CreateTextureFromSurface(renderer, data.surface);
             this->renderer = renderer;
             data.text = textContent;
             data.path = fontPath;
+
+            if (!renderer) {
+                errorMessage = "Cannot create text \"" + textContent + "\": renderer is null";
+                return;
+            }
+
+            data.font = TTF_OpenFont(fontPath.c_str(), 128);
+            if (!data.font) {
+                setError("TTF_OpenFont(\"" + fontPath + "\")");
+                return;
+            }
+
+            renderText();
         }
 
         text(const text&) = delete;
@@ -84,6 +130,20 @@ class text {
         }
 
         /**
+         * @brief Returns true if the font and rendered texture were created successfully.
+         */
+        bool ok() const {
+            return errorMessage.empty() && data.font && data.surface && data.texture;
+        }
+
+        /**
+         * @brief Returns the last SDL-related error message.
+         */
+        std::string error() const {
+            return errorMessage;
+        }
+
+        /**
          * @brief Frees the resources of the surface, texture and font
          */
         void destroy() {
@@ -102,9 +162,8 @@ class text {
         void setText(const std::string& newText) {
             destroyRendered();
 
-            data.surface = TTF_RenderText_Solid(data.font, newText.c_str(), newText.length(), data.color);
-            data.texture = SDL_CreateTextureFromSurface(renderer, data.surface);
             data.text = newText;
+            renderText();
         }
         
         /**
@@ -129,8 +188,7 @@ class text {
             data.color.b = b;
 
             data.color = {r, g, b, 255};
-            data.surface = TTF_RenderText_Solid(data.font, data.text.c_str(), data.text.length(), data.color);
-            data.texture = SDL_CreateTextureFromSurface(renderer, data.surface);
+            renderText();
         }
 
         /**

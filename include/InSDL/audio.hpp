@@ -26,6 +26,16 @@ class audio {
         };
 
         audioData data;
+        std::string errorMessage;
+
+        void setError(const std::string& context) {
+            const char* sdlError = SDL_GetError();
+            errorMessage = context + " failed";
+            if (sdlError && sdlError[0] != '\0') {
+                errorMessage += ": ";
+                errorMessage += sdlError;
+            }
+        }
     public:
         /**
          * @brief Constructor, loads a WAV file and initializes the audio device
@@ -33,13 +43,28 @@ class audio {
          * @param wavPath Path to the WAV file
          */
         audio(const std::string& wavPath) {
-            SDL_LoadWAV(wavPath.c_str(), &data.spec, &data.wavData, &data.wavDataLen);
-
-            data.audioStream = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &data.spec, NULL, NULL);
-            data.deviceId = SDL_GetAudioStreamDevice(data.audioStream);
             data.filePath = wavPath;
 
-            SDL_ResumeAudioDevice(data.deviceId);
+            if (!SDL_LoadWAV(wavPath.c_str(), &data.spec, &data.wavData, &data.wavDataLen)) {
+                setError("SDL_LoadWAV(\"" + wavPath + "\")");
+                return;
+            }
+
+            data.audioStream = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &data.spec, NULL, NULL);
+            if (!data.audioStream) {
+                setError("SDL_OpenAudioDeviceStream(\"" + wavPath + "\")");
+                return;
+            }
+
+            data.deviceId = SDL_GetAudioStreamDevice(data.audioStream);
+            if (!data.deviceId) {
+                setError("SDL_GetAudioStreamDevice(\"" + wavPath + "\")");
+                return;
+            }
+
+            if (!SDL_ResumeAudioDevice(data.deviceId)) {
+                setError("SDL_ResumeAudioDevice(\"" + wavPath + "\")");
+            }
         }
 
         audio(const audio&) = delete;
@@ -61,14 +86,31 @@ class audio {
         }
 
         /**
+         * @brief Returns true if the WAV file, audio stream and device were initialized successfully.
+         */
+        bool ok() const {
+            return errorMessage.empty() && data.wavData && data.audioStream && data.deviceId;
+        }
+
+        /**
+         * @brief Returns the last SDL-related error message.
+         */
+        std::string error() const {
+            return errorMessage;
+        }
+
+        /**
          * @brief Plays the audio
          */
         void play() {
             if (!data.audioStream || !data.wavData) {
+                errorMessage = "Cannot play audio: audio is not loaded";
                 return;
             }
             if (SDL_GetAudioStreamQueued(data.audioStream) < (int)data.wavDataLen) {
-                SDL_PutAudioStreamData(data.audioStream, data.wavData, data.wavDataLen);
+                if (!SDL_PutAudioStreamData(data.audioStream, data.wavData, data.wavDataLen)) {
+                    setError("SDL_PutAudioStreamData(\"" + data.filePath + "\")");
+                }
             }
         }
 
@@ -77,7 +119,11 @@ class audio {
          */
         void resume() {
             if (data.deviceId) {
-                SDL_ResumeAudioDevice(data.deviceId);
+                if (!SDL_ResumeAudioDevice(data.deviceId)) {
+                    setError("SDL_ResumeAudioDevice(\"" + data.filePath + "\")");
+                }
+            } else {
+                errorMessage = "Cannot resume audio: audio device is not open";
             }
         }
 
@@ -86,7 +132,11 @@ class audio {
          */
         void pause() {
             if (data.deviceId) {
-                SDL_PauseAudioDevice(data.deviceId);
+                if (!SDL_PauseAudioDevice(data.deviceId)) {
+                    setError("SDL_PauseAudioDevice(\"" + data.filePath + "\")");
+                }
+            } else {
+                errorMessage = "Cannot pause audio: audio device is not open";
             }
         }
 

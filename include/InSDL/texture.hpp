@@ -23,6 +23,16 @@ class texture {
         };
 
         textureData data;
+        std::string errorMessage;
+
+        void setError(const std::string& context) {
+            const char* sdlError = SDL_GetError();
+            errorMessage = context + " failed";
+            if (sdlError && sdlError[0] != '\0') {
+                errorMessage += ": ";
+                errorMessage += sdlError;
+            }
+        }
     public:
         /**
          * @brief Constructor, loads an image from a file and creates a texture
@@ -31,9 +41,23 @@ class texture {
          * @param file Path to the image file
          */
         texture(SDL_Renderer *renderer, std::string filePath) {
-            data.surface = IMG_Load(filePath.c_str());
-            data.texture = SDL_CreateTextureFromSurface(renderer, data.surface);
             data.path = filePath;
+
+            if (!renderer) {
+                errorMessage = "Cannot load texture \"" + filePath + "\": renderer is null";
+                return;
+            }
+
+            data.surface = IMG_Load(filePath.c_str());
+            if (!data.surface) {
+                setError("IMG_Load(\"" + filePath + "\")");
+                return;
+            }
+
+            data.texture = SDL_CreateTextureFromSurface(renderer, data.surface);
+            if (!data.texture) {
+                setError("SDL_CreateTextureFromSurface(\"" + filePath + "\")");
+            }
         }
 
         texture(const texture&) = delete;
@@ -52,6 +76,20 @@ class texture {
 
         ~texture() {
             destroy();
+        }
+
+        /**
+         * @brief Returns true if the image and SDL texture were loaded successfully.
+         */
+        bool ok() const {
+            return errorMessage.empty() && data.surface && data.texture;
+        }
+
+        /**
+         * @brief Returns the last SDL-related error message.
+         */
+        std::string error() const {
+            return errorMessage;
         }
 
         /**
