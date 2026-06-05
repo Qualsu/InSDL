@@ -29,7 +29,7 @@ class rect {
 
         bool surface = false;
         rectData data;
-        app application;
+        app* application = nullptr;
 
     public:
         /**
@@ -43,9 +43,9 @@ class rect {
         * @param w Width of the rectangle (default: 0)
         * @param h Height of the rectangle (default: 0)
         */
-        rect(app app, int x = 0, int y = 0, int w = 0, int h = 0) {
-            application = app;
-            surface = (app.Surface != nullptr);
+        rect(app& parent, int x = 0, int y = 0, int w = 0, int h = 0) {
+            application = &parent;
+            surface = (parent.Surface != nullptr);
             if (surface) {
                 data.rect = SDL_Rect{ x, y, w, h };
             } else {
@@ -371,10 +371,10 @@ class rect {
             data.color.g = g;
             data.color.b = b;
             if (surface) {
-                SDL_FillSurfaceRect(application.Surface, &get<SDL_Rect>(data.rect), SDL_MapSurfaceRGB(application.Surface, r, g, b));
+                SDL_FillSurfaceRect(application->Surface, &get<SDL_Rect>(data.rect), SDL_MapSurfaceRGB(application->Surface, r, g, b));
             } else {
-                SDL_SetRenderDrawColor(application.Render, r, g, b, 255);
-                SDL_RenderFillRect(application.Render, &get<SDL_FRect>(data.rect));
+                SDL_SetRenderDrawColor(application->Render, r, g, b, 255);
+                SDL_RenderFillRect(application->Render, &get<SDL_FRect>(data.rect));
             }
         }
 
@@ -389,7 +389,7 @@ class rect {
         * @param point Rotation center point relative to the rectangle (default: {0, 0} = top-left corner)
         */
         void fillTexture(texture *texture, double deg = 0, SDL_FlipMode mode = SDL_FLIP_NONE, SDL_FPoint point = {0, 0}) {
-            SDL_RenderTextureRotated(application.Render, texture->get().texture, nullptr, &get<SDL_FRect>(data.rect), deg, &point, mode);
+            SDL_RenderTextureRotated(application->Render, texture->get().texture, nullptr, &get<SDL_FRect>(data.rect), deg, &point, mode);
         }
 
         /**
@@ -398,7 +398,7 @@ class rect {
         * @param text Pointer to the text object to render
         */
         void fillText(text *text) {
-            SDL_RenderTexture(application.Render, text->get().texture, nullptr, &get<SDL_FRect>(data.rect));
+            SDL_RenderTexture(application->Render, text->get().texture, nullptr, &get<SDL_FRect>(data.rect));
         }
 
         /**
@@ -407,7 +407,7 @@ class rect {
         * Only applicable in Surface rendering mode
         */
         void update() {
-            SDL_FillSurfaceRect(application.Surface, &get<SDL_Rect>(data.rect), SDL_MapSurfaceRGB(application.Surface, data.color.r, data.color.g, data.color.b));
+            SDL_FillSurfaceRect(application->Surface, &get<SDL_Rect>(data.rect), SDL_MapSurfaceRGB(application->Surface, data.color.r, data.color.g, data.color.b));
         }
 
         /**

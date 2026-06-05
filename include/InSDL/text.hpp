@@ -4,6 +4,7 @@
 #include <SDL3/SDL.h>
 #include <SDL3_ttf/SDL_ttf.h>
 #include <iostream>
+#include <utility>
 
 using namespace std;
 
@@ -16,16 +17,27 @@ using namespace std;
 class text {
     private:
         struct textData {
-            SDL_Surface *surface;
-            SDL_Texture *texture;
-            TTF_Font* font;
+            SDL_Surface *surface = nullptr;
+            SDL_Texture *texture = nullptr;
+            TTF_Font* font = nullptr;
             SDL_Color color = {255, 255, 255, 255};
             string text;
             string path;
         };
 
-        SDL_Renderer *Render;
+        SDL_Renderer *Render = nullptr;
         textData data;
+
+        void destroyRendered() {
+            if (data.surface) {
+                SDL_DestroySurface(data.surface);
+                data.surface = nullptr;
+            }
+            if (data.texture) {
+                SDL_DestroyTexture(data.texture);
+                data.texture = nullptr;
+            }
+        }
     public:
         /**
          * @brief Constructor that initializes text with a specified font, text, and color
@@ -50,12 +62,35 @@ class text {
             data.path = fontpath;
         }
 
+        text(const text&) = delete;
+        text& operator=(const text&) = delete;
+
+        text(text&& other) noexcept
+            : Render(std::exchange(other.Render, nullptr)),
+              data(std::exchange(other.data, textData{})) {}
+
+        text& operator=(text&& other) noexcept {
+            if (this != &other) {
+                destroy();
+                Render = std::exchange(other.Render, nullptr);
+                data = std::exchange(other.data, textData{});
+            }
+            return *this;
+        }
+
+        ~text() {
+            destroy();
+        }
+
         /**
-         * @brief Frees the resources of the surface and texture
+         * @brief Frees the resources of the surface, texture and font
          */
         void destroy() {
-            SDL_DestroySurface(data.surface);
-            SDL_DestroyTexture(data.texture);
+            destroyRendered();
+            if (data.font) {
+                TTF_CloseFont(data.font);
+                data.font = nullptr;
+            }
         }
 
         /**
@@ -64,10 +99,11 @@ class text {
          * @param newText New string of text
          */
         void setText(const string& newText) {
-            destroy();
+            destroyRendered();
 
             data.surface = TTF_RenderText_Solid(data.font, newText.c_str(), newText.length(), data.color);
             data.texture = SDL_CreateTextureFromSurface(Render, data.surface);
+            data.text = newText;
         }
         
         /**
@@ -81,7 +117,7 @@ class text {
          * @param b Blue component of color (0-255)
          */
         void setColor(Uint8 r = -1, Uint8 g = -1, Uint8 b = -1) {
-            destroy();
+            destroyRendered();
 
             r = r == -1 ? data.color.r : r;
             b = b == -1 ? data.color.b : b;
@@ -101,7 +137,7 @@ class text {
          * 
          * @return textData Structure with text parameters
          */
-        textData get() {
+        textData get() const {
             return data;
         }
 

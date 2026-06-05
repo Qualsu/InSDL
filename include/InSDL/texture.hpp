@@ -4,6 +4,7 @@
 #include <SDL3/SDL.h>
 #include <SDL3_image/SDL_image.h>
 #include <iostream>
+#include <utility>
 
 using namespace std;
 
@@ -15,8 +16,8 @@ using namespace std;
 class texture {
     private:
         struct textureData {
-            SDL_Surface *surface;
-            SDL_Texture *texture;
+            SDL_Surface *surface = nullptr;
+            SDL_Texture *texture = nullptr;
             string path;
         };
 
@@ -34,12 +35,36 @@ class texture {
             data.path = file;
         }
 
+        texture(const texture&) = delete;
+        texture& operator=(const texture&) = delete;
+
+        texture(texture&& other) noexcept
+            : data(std::exchange(other.data, textureData{})) {}
+
+        texture& operator=(texture&& other) noexcept {
+            if (this != &other) {
+                destroy();
+                data = std::exchange(other.data, textureData{});
+            }
+            return *this;
+        }
+
+        ~texture() {
+            destroy();
+        }
+
         /**
          * @brief Frees the resources of the surface and texture
          */
         void destroy() {
-            SDL_DestroySurface(data.surface);
-            SDL_DestroyTexture(data.texture);
+            if (data.surface) {
+                SDL_DestroySurface(data.surface);
+                data.surface = nullptr;
+            }
+            if (data.texture) {
+                SDL_DestroyTexture(data.texture);
+                data.texture = nullptr;
+            }
         }
 
         /**
@@ -47,7 +72,7 @@ class texture {
          * 
          * @return textureData Structure with texture parameters
          */
-        textureData get() {
+        textureData get() const {
             return data;
         }
 

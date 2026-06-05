@@ -4,6 +4,7 @@
 #include <SDL3/SDL.h>
 #include <iostream>
 #include <string>
+#include <utility>
 
 using namespace std;
 
@@ -41,10 +42,31 @@ class audio {
             SDL_ResumeAudioDevice(data.device);
         }
 
+        audio(const audio&) = delete;
+        audio& operator=(const audio&) = delete;
+
+        audio(audio&& other) noexcept
+            : data(std::exchange(other.data, audioData{})) {}
+
+        audio& operator=(audio&& other) noexcept {
+            if (this != &other) {
+                stop();
+                data = std::exchange(other.data, audioData{});
+            }
+            return *this;
+        }
+
+        ~audio() {
+            stop();
+        }
+
         /**
          * @brief Plays the audio
          */
         void play() {
+            if (!data.stream || !data.wav_data) {
+                return;
+            }
             if (SDL_GetAudioStreamQueued(data.stream) < (int)data.wav_data_len) {
                 SDL_PutAudioStreamData(data.stream, data.wav_data, data.wav_data_len);
             }
@@ -54,14 +76,18 @@ class audio {
          * @brief Resumes audio playback
          */
         void resume() {
-            SDL_ResumeAudioDevice(data.device);
+            if (data.device) {
+                SDL_ResumeAudioDevice(data.device);
+            }
         }
 
         /**
          * @brief Pauses audio playback
          */
         void pause() {
-            SDL_PauseAudioDevice(data.device);
+            if (data.device) {
+                SDL_PauseAudioDevice(data.device);
+            }
         }
 
         /**
@@ -73,6 +99,7 @@ class audio {
             if (data.device) {
                 SDL_PauseAudioDevice(data.device);
                 SDL_CloseAudioDevice(data.device);
+                data.device = 0;
             }
             if (data.stream) {
                 SDL_DestroyAudioStream(data.stream);

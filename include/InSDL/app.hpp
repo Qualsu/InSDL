@@ -100,6 +100,14 @@ class app {
             }
         }
 
+        app() = default;
+        app(const app&) = delete;
+        app& operator=(const app&) = delete;
+
+        ~app() {
+            exit();
+        }
+
         /**
          * @brief Fills the window with color
          * 
@@ -138,7 +146,7 @@ class app {
          * 
          * @param icon Texture of the icon
          */
-        void setIcon(texture icon) {
+        void setIcon(const texture& icon) {
             SDL_Surface *iconSurface = icon.get().surface;
             SDL_SetWindowIcon(Window, iconSurface);
         }
@@ -210,8 +218,15 @@ class app {
          * @brief Terminates the application, frees SDL resources
          */
         void exit() {
-            SDL_DestroyRenderer(Render); 
-            SDL_DestroyWindow(Window);
+            if (Render) {
+                SDL_DestroyRenderer(Render);
+                Render = nullptr;
+            }
+            if (Window) {
+                SDL_DestroyWindow(Window);
+                Window = nullptr;
+            }
+            Surface = nullptr;
             TTF_Quit();
             SDL_Quit();
         }
