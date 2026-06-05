@@ -1,4 +1,4 @@
-#include <InSDL.hpp>
+#include <InSDL/InSDL.hpp>
 
 int main()
 {

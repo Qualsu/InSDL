@@ -6,11 +6,11 @@
 #include <map>
 #include <functional>
 #include <vector>
-#include <direct.h>
+#include <filesystem>
 
 #include <SDL3/SDL.h>
 #include <SDL3_ttf/SDL_ttf.h>
-#include <texture.hpp>
+#include <InSDL/texture.hpp>
 
 namespace insdl {
 
@@ -21,6 +21,10 @@ namespace insdl {
  */
 class app {
     private:
+        static std::string defaultFontPath() {
+            return (std::filesystem::path(__FILE__).parent_path() / "font.ttf").string();
+        }
+
         struct keyBindStruct {
             SDL_Scancode key;
             std::function<void()> callback;
@@ -62,9 +66,6 @@ class app {
 
             windowHandle = SDL_CreateWindow(name.c_str(), width, height, 0);
         }
-
-        char pathBuffer[1024];
-        [[maybe_unused]] char* currentPath = getcwd(pathBuffer, 1024);
         Uint64 lastFrameTicksNs = 0;
         float deltaTimeSeconds = 0.0f;
     public:
@@ -78,7 +79,7 @@ class app {
         std::vector<mouseMotionBindStruct> mouseMotionBindings;
         colorStruct color;
         windowStruct window;
-        std::string font = std::string(pathBuffer) + "\\include\\InSDL\\font.ttf"; // default font for text rendering
+        std::string font = defaultFontPath(); // default font for text rendering
 
         /**
          * @brief Initializes the application: creates a window, sets the rendering mode, and the default font

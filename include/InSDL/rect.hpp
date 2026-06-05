@@ -3,9 +3,9 @@
 #include <SDL3/SDL.h>
 #include <iostream>
 #include <variant>
-#include <app.hpp>
-#include <texture.hpp>
-#include <text.hpp>
+#include <InSDL/app.hpp>
+#include <InSDL/texture.hpp>
+#include <InSDL/text.hpp>
 
 namespace insdl {
 

@@ -7,8 +7,8 @@ _archive
 *.pyc
 _.*.cpp
 
-img.bmp
-font.ttf
-audio.wav
-!include/InSDL/font.ttf
 TODO.md
+img.bmp
+audio.wav
+font.ttf
+!include/InSDL/font.ttf

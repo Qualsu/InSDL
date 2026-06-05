@@ -1,7 +1,7 @@
 #ifndef INSDL_EVENT
 #define INSDL_EVENT
 
-#include <app.hpp>
+#include <InSDL/app.hpp>
 #include <functional>
 
 namespace insdl {
