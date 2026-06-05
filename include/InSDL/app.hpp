@@ -12,8 +12,6 @@
 #include <SDL3_ttf/SDL_ttf.h>
 #include <texture.hpp>
 
-using namespace std;
-
 /**
  * @brief Class for managing an SDL application
  * 
@@ -23,16 +21,16 @@ class app {
     private:
         struct keyBindStruct {
             SDL_Scancode key;
-            function<void()> func;
+            std::function<void()> func;
         };
 
         struct mouseBindStruct {
             Uint8 button;
-            function<void()> func;
+            std::function<void()> func;
         };
 
         struct mouseMotionBindStruct {
-            function<void(int, int)> func;
+            std::function<void(int, int)> func;
         };
 
         struct colorStruct {
@@ -44,7 +42,7 @@ class app {
         struct windowStruct {
             int width;
             int height;
-            string name;
+            std::string name;
         };
         
         /**
@@ -54,7 +52,7 @@ class app {
          * @param height Height of the window
          * @param name Name of the window
          */
-        void createWindow(int width, int height, string name){
+        void createWindow(int width, int height, std::string name){
             SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
             window.width = width;
             window.height = height;
@@ -70,13 +68,13 @@ class app {
         SDL_Surface *Surface = nullptr;
         SDL_Renderer *Render = nullptr;
         bool quit = false; // flag for quitting the application
-        vector<keyBindStruct> keyBindings;
-        vector<keyBindStruct> keyUpBindings;
-        vector<mouseBindStruct> mouseBindings;
-        vector<mouseMotionBindStruct> mouseMotionBindings;
+        std::vector<keyBindStruct> keyBindings;
+        std::vector<keyBindStruct> keyUpBindings;
+        std::vector<mouseBindStruct> mouseBindings;
+        std::vector<mouseMotionBindStruct> mouseMotionBindings;
         colorStruct color;
         windowStruct window;
-        string font = string(buffer) + "\\include\\InSDL\\font.ttf"; // default font for text rendering
+        std::string font = std::string(buffer) + "\\include\\InSDL\\font.ttf"; // default font for text rendering
 
         /**
          * @brief Initializes the application: creates a window, sets the rendering mode, and the default font
@@ -87,7 +85,7 @@ class app {
          * @param render Use Renderer (true) or Surface (false)
          * @param fontpath Path to the font file (optional)
          */
-        void init(int width, int height, string name, bool surface = false, string fontpath = "") {
+        void init(int width, int height, std::string name, bool surface = false, std::string fontpath = "") {
             createWindow(width, height, name);
             font = fontpath.empty() ? font : fontpath;
 
@@ -103,6 +101,8 @@ class app {
         app() = default;
         app(const app&) = delete;
         app& operator=(const app&) = delete;
+        app(app&&) = delete;
+        app& operator=(app&&) = delete;
 
         ~app() {
             exit();
@@ -156,7 +156,7 @@ class app {
          * 
          * @param fontpath Path to the font file
          */
-        void setFont(string fontpath){
+        void setFont(std::string fontpath){
             font = fontpath;
         }
 
@@ -167,7 +167,7 @@ class app {
          * @param height New height of the window (optional, to skip — -1)
          * @param name New title of the window (optional)
          */
-        void change(int width = -1, int height = -1, string name = "") {
+        void change(int width = -1, int height = -1, std::string name = "") {
             window.width = width == -1 ? window.width : width;
             window.height = height == -1 ? window.height : height;
             window.name = name.empty() ? window.name : name;

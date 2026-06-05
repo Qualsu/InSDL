@@ -4,8 +4,6 @@
 #include <app.hpp>
 #include <functional>
 
-using namespace std;
-
 /**
  * @note Not used
  * @brief Handles the application quit event

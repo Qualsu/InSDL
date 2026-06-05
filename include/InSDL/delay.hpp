@@ -5,10 +5,6 @@
 #include <chrono>
 #include <thread>
 
-using namespace std;
-using namespace this_thread;
-using namespace chrono;
-
 /**
  * @brief Pauses the execution of the program for a specified number of milliseconds
  * 
@@ -16,7 +12,7 @@ using namespace chrono;
  */
 void delayms(int msec)
 {
-    sleep_for(milliseconds(msec));
+    std::this_thread::sleep_for(std::chrono::milliseconds(msec));
 }
 
 /**
@@ -26,7 +22,7 @@ void delayms(int msec)
  */
 void delaysc(int sec)
 {
-    sleep_for(seconds(sec));
+    std::this_thread::sleep_for(std::chrono::seconds(sec));
 }
 
 /**
@@ -36,7 +32,7 @@ void delaysc(int sec)
  */
 void delaymn(int min)
 {
-    sleep_for(minutes(min));
+    std::this_thread::sleep_for(std::chrono::minutes(min));
 }
 
 /**
@@ -46,7 +42,7 @@ void delaymn(int min)
  */
 void delayhr(int hour)
 {
-    sleep_for(hours(hour));
+    std::this_thread::sleep_for(std::chrono::hours(hour));
 }
 
 #endif

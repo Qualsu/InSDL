@@ -4,9 +4,8 @@
 #include <SDL3/SDL.h>
 #include <SDL3_ttf/SDL_ttf.h>
 #include <iostream>
+#include <string>
 #include <utility>
-
-using namespace std;
 
 /**
  * @brief Class for working with text using SDL_ttf
@@ -21,8 +20,8 @@ class text {
             SDL_Texture *texture = nullptr;
             TTF_Font* font = nullptr;
             SDL_Color color = {255, 255, 255, 255};
-            string text;
-            string path;
+            std::string text;
+            std::string path;
         };
 
         SDL_Renderer *Render = nullptr;
@@ -52,7 +51,7 @@ class text {
          * @param g Green component of color (0-255)
          * @param b Blue component of color (0-255)
          */
-        text(SDL_Renderer *render, const string& text, string fontpath, Uint8 r = 255, Uint8 g = 255, Uint8 b = 255) {
+        text(SDL_Renderer *render, const std::string& text, std::string fontpath, Uint8 r = 255, Uint8 g = 255, Uint8 b = 255) {
             data.color = {r, g, b, 255};
             data.font = TTF_OpenFont(fontpath.c_str(), 128);
             data.surface = TTF_RenderText_Solid(data.font, text.c_str(), text.length(), data.color);
@@ -98,7 +97,7 @@ class text {
          * 
          * @param newText New string of text
          */
-        void setText(const string& newText) {
+        void setText(const std::string& newText) {
             destroyRendered();
 
             data.surface = TTF_RenderText_Solid(data.font, newText.c_str(), newText.length(), data.color);
@@ -146,7 +145,7 @@ class text {
          * 
          * Outputs the text string, font path, and color in RGB format
          */
-        friend ostream& operator<<(ostream& os, const text& t) {
+        friend std::ostream& operator<<(std::ostream& os, const text& t) {
             os << "Text(text: \"" << t.data.text << "\", path: " << t.data.path 
                << ", r: " << static_cast<int>(t.data.color.r) 
                << ", g: " << static_cast<int>(t.data.color.g) 

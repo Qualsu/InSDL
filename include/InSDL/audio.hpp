@@ -6,8 +6,6 @@
 #include <string>
 #include <utility>
 
-using namespace std;
-
 /**
  * @brief Class for working with WAV audio files
  * 
@@ -22,7 +20,7 @@ class audio {
             Uint8* wav_data = NULL;
             Uint32 wav_data_len = 0;
             SDL_AudioDeviceID device = 0;
-            string path;
+            std::string path;
         };
 
         audioData data;
@@ -32,7 +30,7 @@ class audio {
          * 
          * @param wavPath Path to the WAV file
          */
-        audio(const string& wavPath) {
+        audio(const std::string& wavPath) {
             SDL_LoadWAV(wavPath.c_str(), &data.spec, &data.wav_data, &data.wav_data_len);
 
             data.stream = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &data.spec, NULL, NULL);
@@ -125,7 +123,7 @@ class audio {
          * 
          * Outputs the file path
          */
-        friend ostream& operator<<(ostream& os, const audio& a) {
+        friend std::ostream& operator<<(std::ostream& os, const audio& a) {
             os << "Audio(path: \"" << a.data.path << "\")";
             return os;
         }

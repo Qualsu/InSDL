@@ -6,7 +6,6 @@
 #include <app.hpp>
 #include <texture.hpp>
 #include <text.hpp>
-using namespace std;
 
 /**
 * @brief Class for representing and managing a rectangle with color
@@ -23,7 +22,7 @@ class rect {
         };
 
         struct rectData {
-            variant<SDL_Rect, SDL_FRect> rect;
+            std::variant<SDL_Rect, SDL_FRect> rect;
             colorStruct color;
         };
 
@@ -77,11 +76,11 @@ class rect {
         */
         void setPosition(int x, int y) {
             if (surface) {
-                auto r = get<SDL_Rect>(data.rect);
+                auto r = std::get<SDL_Rect>(data.rect);
                 r.x = x; r.y = y;
                 data.rect = r;
             } else {
-                auto r = get<SDL_FRect>(data.rect);
+                auto r = std::get<SDL_FRect>(data.rect);
                 r.x = static_cast<float>(x); r.y = static_cast<float>(y);
                 data.rect = r;
             }
@@ -95,11 +94,11 @@ class rect {
         */
         void setSize(int w, int h) {
             if (surface) {
-                auto r = get<SDL_Rect>(data.rect);
+                auto r = std::get<SDL_Rect>(data.rect);
                 r.w = w; r.h = h;
                 data.rect = r;
             } else {
-                auto r = get<SDL_FRect>(data.rect);
+                auto r = std::get<SDL_FRect>(data.rect);
                 r.w = static_cast<float>(w); r.h = static_cast<float>(h);
                 data.rect = r;
             }
@@ -112,11 +111,11 @@ class rect {
         */
         void setX(int x) {
             if (surface) {
-                auto r = get<SDL_Rect>(data.rect);
+                auto r = std::get<SDL_Rect>(data.rect);
                 r.x = x;
                 data.rect = r;
             } else {
-                auto r = get<SDL_FRect>(data.rect);
+                auto r = std::get<SDL_FRect>(data.rect);
                 r.x = static_cast<float>(x);
                 data.rect = r;
             }
@@ -129,11 +128,11 @@ class rect {
         */
         void setY(int y) {
             if (surface) {
-                auto r = get<SDL_Rect>(data.rect);
+                auto r = std::get<SDL_Rect>(data.rect);
                 r.y = y;
                 data.rect = r;
             } else {
-                auto r = get<SDL_FRect>(data.rect);
+                auto r = std::get<SDL_FRect>(data.rect);
                 r.y = static_cast<float>(y);
                 data.rect = r;
             }
@@ -146,11 +145,11 @@ class rect {
         */
         void setWidth(int w) {
             if (surface) {
-                auto r = get<SDL_Rect>(data.rect);
+                auto r = std::get<SDL_Rect>(data.rect);
                 r.w = w;
                 data.rect = r;
             } else {
-                auto r = get<SDL_FRect>(data.rect);
+                auto r = std::get<SDL_FRect>(data.rect);
                 r.w = static_cast<float>(w);
                 data.rect = r;
             }
@@ -163,11 +162,11 @@ class rect {
         */
         void setHeight(int h) {
             if (surface) {
-                auto r = get<SDL_Rect>(data.rect);
+                auto r = std::get<SDL_Rect>(data.rect);
                 r.h = h;
                 data.rect = r;
             } else {
-                auto r = get<SDL_FRect>(data.rect);
+                auto r = std::get<SDL_FRect>(data.rect);
                 r.h = static_cast<float>(h);
                 data.rect = r;
             }
@@ -180,11 +179,11 @@ class rect {
         */
         void addX(int x) {
             if (surface) {
-                auto r = get<SDL_Rect>(data.rect);
+                auto r = std::get<SDL_Rect>(data.rect);
                 r.x += x;
                 data.rect = r;
             } else {
-                auto r = get<SDL_FRect>(data.rect);
+                auto r = std::get<SDL_FRect>(data.rect);
                 r.x += static_cast<float>(x);
                 data.rect = r;
             }
@@ -197,11 +196,11 @@ class rect {
         */
         void addY(int y) {
             if (surface) {
-                auto r = get<SDL_Rect>(data.rect);
+                auto r = std::get<SDL_Rect>(data.rect);
                 r.y += y;
                 data.rect = r;
             } else {
-                auto r = get<SDL_FRect>(data.rect);
+                auto r = std::get<SDL_FRect>(data.rect);
                 r.y += static_cast<float>(y);
                 data.rect = r;
             }
@@ -214,11 +213,11 @@ class rect {
         */
         void addWidth(int w) {
             if (surface) {
-                auto r = get<SDL_Rect>(data.rect);
+                auto r = std::get<SDL_Rect>(data.rect);
                 r.w += w;
                 data.rect = r;
             } else {
-                auto r = get<SDL_FRect>(data.rect);
+                auto r = std::get<SDL_FRect>(data.rect);
                 r.w += static_cast<float>(w);
                 data.rect = r;
             }
@@ -231,11 +230,11 @@ class rect {
         */
         void addHeight(int h) {
             if (surface) {
-                auto r = get<SDL_Rect>(data.rect);
+                auto r = std::get<SDL_Rect>(data.rect);
                 r.h += h;
                 data.rect = r;
             } else {
-                auto r = get<SDL_FRect>(data.rect);
+                auto r = std::get<SDL_FRect>(data.rect);
                 r.h += static_cast<float>(h);
                 data.rect = r;
             }
@@ -248,11 +247,11 @@ class rect {
         */
         void subX(int x) {
             if (surface) {
-                auto r = get<SDL_Rect>(data.rect);
+                auto r = std::get<SDL_Rect>(data.rect);
                 r.x -= x;
                 data.rect = r;
             } else {
-                auto r = get<SDL_FRect>(data.rect);
+                auto r = std::get<SDL_FRect>(data.rect);
                 r.x -= static_cast<float>(x);
                 data.rect = r;
             }
@@ -265,11 +264,11 @@ class rect {
         */
         void subY(int y) {
             if (surface) {
-                auto r = get<SDL_Rect>(data.rect);
+                auto r = std::get<SDL_Rect>(data.rect);
                 r.y -= y;
                 data.rect = r;
             } else {
-                auto r = get<SDL_FRect>(data.rect);
+                auto r = std::get<SDL_FRect>(data.rect);
                 r.y -= static_cast<float>(y);
                 data.rect = r;
             }
@@ -282,11 +281,11 @@ class rect {
         */
         void subWidth(int w) {
             if (surface) {
-                auto r = get<SDL_Rect>(data.rect);
+                auto r = std::get<SDL_Rect>(data.rect);
                 r.w -= w;
                 data.rect = r;
             } else {
-                auto r = get<SDL_FRect>(data.rect);
+                auto r = std::get<SDL_FRect>(data.rect);
                 r.w -= static_cast<float>(w);
                 data.rect = r;
             }
@@ -299,11 +298,11 @@ class rect {
         */
         void subHeight(int h) {
             if (surface) {
-                auto r = get<SDL_Rect>(data.rect);
+                auto r = std::get<SDL_Rect>(data.rect);
                 r.h -= h;
                 data.rect = r;
             } else {
-                auto r = get<SDL_FRect>(data.rect);
+                auto r = std::get<SDL_FRect>(data.rect);
                 r.h -= static_cast<float>(h);
                 data.rect = r;
             }
@@ -314,8 +313,8 @@ class rect {
         */
         int getX() {
             return surface
-                ? get<SDL_Rect>(data.rect).x
-                : static_cast<int>(get<SDL_FRect>(data.rect).x);
+                ? std::get<SDL_Rect>(data.rect).x
+                : static_cast<int>(std::get<SDL_FRect>(data.rect).x);
         }
 
         /** 
@@ -323,8 +322,8 @@ class rect {
         */
         int getY() {
             return surface
-                ? get<SDL_Rect>(data.rect).y
-                : static_cast<int>(get<SDL_FRect>(data.rect).y);
+                ? std::get<SDL_Rect>(data.rect).y
+                : static_cast<int>(std::get<SDL_FRect>(data.rect).y);
         }
 
         /** 
@@ -332,8 +331,8 @@ class rect {
         */
         int getWidth() {
             return surface
-                ? get<SDL_Rect>(data.rect).w
-                : static_cast<int>(get<SDL_FRect>(data.rect).w);
+                ? std::get<SDL_Rect>(data.rect).w
+                : static_cast<int>(std::get<SDL_FRect>(data.rect).w);
         }
 
         /** 
@@ -341,8 +340,8 @@ class rect {
         */
         int getHeight() {
             return surface
-                ? get<SDL_Rect>(data.rect).h
-                : static_cast<int>(get<SDL_FRect>(data.rect).h);
+                ? std::get<SDL_Rect>(data.rect).h
+                : static_cast<int>(std::get<SDL_FRect>(data.rect).h);
         }
 
         /**
@@ -371,10 +370,10 @@ class rect {
             data.color.g = g;
             data.color.b = b;
             if (surface) {
-                SDL_FillSurfaceRect(application->Surface, &get<SDL_Rect>(data.rect), SDL_MapSurfaceRGB(application->Surface, r, g, b));
+                SDL_FillSurfaceRect(application->Surface, &std::get<SDL_Rect>(data.rect), SDL_MapSurfaceRGB(application->Surface, r, g, b));
             } else {
                 SDL_SetRenderDrawColor(application->Render, r, g, b, 255);
-                SDL_RenderFillRect(application->Render, &get<SDL_FRect>(data.rect));
+                SDL_RenderFillRect(application->Render, &std::get<SDL_FRect>(data.rect));
             }
         }
 
@@ -389,7 +388,7 @@ class rect {
         * @param point Rotation center point relative to the rectangle (default: {0, 0} = top-left corner)
         */
         void fillTexture(texture *texture, double deg = 0, SDL_FlipMode mode = SDL_FLIP_NONE, SDL_FPoint point = {0, 0}) {
-            SDL_RenderTextureRotated(application->Render, texture->get().texture, nullptr, &get<SDL_FRect>(data.rect), deg, &point, mode);
+            SDL_RenderTextureRotated(application->Render, texture->get().texture, nullptr, &std::get<SDL_FRect>(data.rect), deg, &point, mode);
         }
 
         /**
@@ -398,7 +397,7 @@ class rect {
         * @param text Pointer to the text object to render
         */
         void fillText(text *text) {
-            SDL_RenderTexture(application->Render, text->get().texture, nullptr, &get<SDL_FRect>(data.rect));
+            SDL_RenderTexture(application->Render, text->get().texture, nullptr, &std::get<SDL_FRect>(data.rect));
         }
 
         /**
@@ -407,7 +406,7 @@ class rect {
         * Only applicable in Surface rendering mode
         */
         void update() {
-            SDL_FillSurfaceRect(application->Surface, &get<SDL_Rect>(data.rect), SDL_MapSurfaceRGB(application->Surface, data.color.r, data.color.g, data.color.b));
+            SDL_FillSurfaceRect(application->Surface, &std::get<SDL_Rect>(data.rect), SDL_MapSurfaceRGB(application->Surface, data.color.r, data.color.g, data.color.b));
         }
 
         /**
@@ -417,12 +416,12 @@ class rect {
         */
         bool onTouch(rect& otrect) {
             if (surface) {
-                auto a = get<SDL_Rect>(data.rect);
-                auto b = get<SDL_Rect>(otrect.data.rect);
+                auto a = std::get<SDL_Rect>(data.rect);
+                auto b = std::get<SDL_Rect>(otrect.data.rect);
                 return (a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y);
             } else {
-                auto a = get<SDL_FRect>(data.rect);
-                auto b = get<SDL_FRect>(otrect.data.rect);
+                auto a = std::get<SDL_FRect>(data.rect);
+                auto b = std::get<SDL_FRect>(otrect.data.rect);
                 return (a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y);
             }
         }
@@ -434,10 +433,10 @@ class rect {
             float mouseX, mouseY;
             SDL_GetMouseState(&mouseX, &mouseY);
             if (surface) {
-                auto r = get<SDL_Rect>(data.rect);
+                auto r = std::get<SDL_Rect>(data.rect);
                 return (mouseX >= r.x && mouseX <= r.x + r.w && mouseY >= r.y && mouseY <= r.y + r.h);
             } else {
-                auto r = get<SDL_FRect>(data.rect);
+                auto r = std::get<SDL_FRect>(data.rect);
                 return (mouseX >= r.x && mouseX <= r.x + r.w && mouseY >= r.y && mouseY <= r.y + r.h);
             }
         }
@@ -447,13 +446,13 @@ class rect {
         *
         * Outputs rectangle geometry (position and size) and RGB color values to the output stream
         */
-        friend ostream& operator<<(ostream& os, rect& r) {
+        friend std::ostream& operator<<(std::ostream& os, rect& r) {
             if (r.surface) {
-                auto d = get<SDL_Rect>(r.data.rect);
+                auto d = std::get<SDL_Rect>(r.data.rect);
                 os << "Rect(x: " << d.x << ", y: " << d.y
                 << ", w: " << d.w << ", h: " << d.h;
             } else {
-                auto d = get<SDL_FRect>(r.data.rect);
+                auto d = std::get<SDL_FRect>(r.data.rect);
                 os << "Rect(x: " << d.x << ", y: " << d.y
                 << ", w: " << d.w << ", h: " << d.h;
             }

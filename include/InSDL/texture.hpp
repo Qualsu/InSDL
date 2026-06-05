@@ -4,9 +4,8 @@
 #include <SDL3/SDL.h>
 #include <SDL3_image/SDL_image.h>
 #include <iostream>
+#include <string>
 #include <utility>
-
-using namespace std;
 
 /**
  * @brief Class for working with textures
@@ -18,7 +17,7 @@ class texture {
         struct textureData {
             SDL_Surface *surface = nullptr;
             SDL_Texture *texture = nullptr;
-            string path;
+            std::string path;
         };
 
         textureData data;
@@ -29,7 +28,7 @@ class texture {
          * @param render SDL_Renderer for creating the texture
          * @param file Path to the image file
          */
-        texture(SDL_Renderer *render, string file) {
+        texture(SDL_Renderer *render, std::string file) {
             data.surface = IMG_Load(file.c_str());
             data.texture = SDL_CreateTextureFromSurface(render, data.surface);
             data.path = file;
@@ -81,7 +80,7 @@ class texture {
          * 
          * Outputs the path to the image file
          */
-        friend ostream& operator<<(ostream& os, const texture& t) {
+        friend std::ostream& operator<<(std::ostream& os, const texture& t) {
             os << "Texture(path: " << t.data.path << ")";
             return os;
         }
