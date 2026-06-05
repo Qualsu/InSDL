@@ -46,7 +46,7 @@ class rect {
         */
         rect(app& parent, int x = 0, int y = 0, int w = 0, int h = 0) {
             application = &parent;
-            surface = (parent.windowSurface != nullptr);
+            surface = (parent.surface() != nullptr);
             if (surface) {
                 data.rect = SDL_Rect{ x, y, w, h };
             } else {
@@ -372,10 +372,11 @@ class rect {
             data.color.g = g;
             data.color.b = b;
             if (surface) {
-                SDL_FillSurfaceRect(application->windowSurface, &std::get<SDL_Rect>(data.rect), SDL_MapSurfaceRGB(application->windowSurface, r, g, b));
+                SDL_Surface* targetSurface = application->surface();
+                SDL_FillSurfaceRect(targetSurface, &std::get<SDL_Rect>(data.rect), SDL_MapSurfaceRGB(targetSurface, r, g, b));
             } else {
-                SDL_SetRenderDrawColor(application->renderer, r, g, b, 255);
-                SDL_RenderFillRect(application->renderer, &std::get<SDL_FRect>(data.rect));
+                SDL_SetRenderDrawColor(application->renderer(), r, g, b, 255);
+                SDL_RenderFillRect(application->renderer(), &std::get<SDL_FRect>(data.rect));
             }
         }
 
@@ -390,7 +391,7 @@ class rect {
         * @param point Rotation center point relative to the rectangle (default: {0, 0} = top-left corner)
         */
         void fillTexture(texture *textureObject, double deg = 0, SDL_FlipMode mode = SDL_FLIP_NONE, SDL_FPoint point = {0, 0}) {
-            SDL_RenderTextureRotated(application->renderer, textureObject->get().texture, nullptr, &std::get<SDL_FRect>(data.rect), deg, &point, mode);
+            SDL_RenderTextureRotated(application->renderer(), textureObject->get().texture, nullptr, &std::get<SDL_FRect>(data.rect), deg, &point, mode);
         }
 
         /**
@@ -399,7 +400,7 @@ class rect {
         * @param text Pointer to the text object to render
         */
         void fillText(text *textObject) {
-            SDL_RenderTexture(application->renderer, textObject->get().texture, nullptr, &std::get<SDL_FRect>(data.rect));
+            SDL_RenderTexture(application->renderer(), textObject->get().texture, nullptr, &std::get<SDL_FRect>(data.rect));
         }
 
         /**
@@ -408,7 +409,8 @@ class rect {
         * Only applicable in Surface rendering mode
         */
         void update() {
-            SDL_FillSurfaceRect(application->windowSurface, &std::get<SDL_Rect>(data.rect), SDL_MapSurfaceRGB(application->windowSurface, data.color.r, data.color.g, data.color.b));
+            SDL_Surface* targetSurface = application->surface();
+            SDL_FillSurfaceRect(targetSurface, &std::get<SDL_Rect>(data.rect), SDL_MapSurfaceRGB(targetSurface, data.color.r, data.color.g, data.color.b));
         }
 
         /**

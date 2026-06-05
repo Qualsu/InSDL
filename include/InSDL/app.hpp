@@ -59,7 +59,7 @@ class app {
          * @param height Height of the window
          * @param name Name of the window
          */
-        void createWindow(int width, int height, std::string name){
+        void createWindow(int width, int height, std::string name, bool resizeable){
             if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO)) {
                 setError("SDL_Init");
                 return;
@@ -68,7 +68,8 @@ class app {
             windowData.height = height;
             windowData.name = name;
 
-            windowHandle = SDL_CreateWindow(name.c_str(), width, height, 0);
+            const Uint32 windowFlags = resizeable ? SDL_WINDOW_RESIZABLE : 0;
+            windowHandle = SDL_CreateWindow(name.c_str(), width, height, windowFlags);
             if (!windowHandle) {
                 setError("SDL_CreateWindow");
             }
@@ -88,7 +89,7 @@ class app {
         std::string errorMessage;
         SDL_Window *windowHandle = nullptr;
         SDL_Surface *windowSurface = nullptr;
-        SDL_Renderer *renderer = nullptr;
+        SDL_Renderer *windowRenderer = nullptr;
     public:
         bool quit = false; // flag for quitting the application
         std::vector<keyBindStruct> keyBindings;
@@ -107,11 +108,12 @@ class app {
          * @param height Height of the window
          * @param name Name of the window
          * @param surface Use Renderer (true) or Surface (false)
+         * @param resizeable Allow resizing the window
          * @param fontPath Path to the font file (optional)
          */
-        void init(int width, int height, std::string name, bool surface = false, std::string fontPath = "") {
+        void init(int width, int height, std::string name, bool surface = false, bool resizeable = false, std::string fontPath = "") {
             errorMessage.clear();
-            createWindow(width, height, name);
+            createWindow(width, height, name, resizeable);
             if (!windowHandle) {
                 return;
             }
@@ -129,8 +131,8 @@ class app {
                     return;
                 }
             } else {
-                renderer = SDL_CreateRenderer(windowHandle, NULL);
-                if (!renderer) {
+                windowRenderer = SDL_CreateRenderer(windowHandle, NULL);
+                if (!windowRenderer) {
                     setError("SDL_CreateRenderer");
                     return;
                 }
@@ -158,7 +160,7 @@ class app {
          * @brief Returns true if the application was initialized successfully.
          */
         bool ok() const {
-            return errorMessage.empty() && windowHandle && (renderer || windowSurface);
+            return errorMessage.empty() && windowHandle && (windowRenderer || windowSurface);
         }
 
         /**
@@ -176,7 +178,7 @@ class app {
         /**
          * @brief Get SDL_Renderer
          */
-        SDL_Renderer* renderer() const { return renderer; }
+        SDL_Renderer* renderer() const { return windowRenderer; }
 
         /**
          * @brief Get SDL_Surface
@@ -202,12 +204,12 @@ class app {
             color.g = g;
             color.b = b;
 
-            if (renderer) {
-                if (!SDL_SetRenderDrawColor(renderer, r, g, b, 255)) {
+            if (windowRenderer) {
+                if (!SDL_SetRenderDrawColor(windowRenderer, r, g, b, 255)) {
                     setError("SDL_SetRenderDrawColor");
                     return;
                 }
-                if (!SDL_RenderClear(renderer)) {
+                if (!SDL_RenderClear(windowRenderer)) {
                     setError("SDL_RenderClear");
                 }
             } else if (windowSurface) {
@@ -232,8 +234,8 @@ class app {
          * Depending on the rendering mode, either the Renderer or Surface will be updated
          */
         void update() {
-            if (renderer) {
-                if (!SDL_RenderPresent(renderer)) {
+            if (windowRenderer) {
+                if (!SDL_RenderPresent(windowRenderer)) {
                     setError("SDL_RenderPresent");
                 }
             } else if (windowHandle) {
@@ -352,9 +354,9 @@ class app {
          * @brief Terminates the application, frees SDL resources
          */
         void exit() {
-            if (renderer) {
-                SDL_DestroyRenderer(renderer);
-                renderer = nullptr;
+            if (windowRenderer) {
+                SDL_DestroyRenderer(windowRenderer);
+                windowRenderer = nullptr;
             }
             if (windowHandle) {
                 SDL_DestroyWindow(windowHandle);

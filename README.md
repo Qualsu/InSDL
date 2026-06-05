@@ -1,15 +1,17 @@
 <img src="logo.png" width="300px">
 
-# InSDL — фреймворк для SDL3
+# InSDL - a framework for SDL3
 
 ![C++](https://img.shields.io/badge/c++-%2300599C.svg?style=for-the-badge&logo=c%2B%2B&logoColor=white)
 
-Скачать для добавление в проект можно во вкладке [Релизов](https://github.com/Qualsu/InSDL/releases)
+You can download the latest release from the [Releases](https://github.com/Qualsu/InSDL/releases) page
 
-Для удобной работы с проектами используйте [InSDL Create](https://github.com/Qualsu/InSDL_create)
+For a convenient way to create projects, use [InSDL Create](https://github.com/Qualsu/InSDL_create)
 
+### [English documentation](docs/EN.md) / [Russian documentation](docs/RU.md)
 
-# Шаблон использования
+# Usage template
+
 ```cpp
 #include <InSDL/InSDL.hpp>
 
@@ -20,7 +22,7 @@ int main()
 
     while (!myApp.quit) {
         insdl::handleEvent(myApp);
-        
+
         // code here
 
         myApp.update();
