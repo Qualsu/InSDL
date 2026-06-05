@@ -65,6 +65,8 @@ class app {
 
         char pathBuffer[1024];
         [[maybe_unused]] char* currentPath = getcwd(pathBuffer, 1024);
+        Uint64 lastFrameTicksNs = 0;
+        float deltaTimeSeconds = 0.0f;
     public:
         SDL_Window *windowHandle = nullptr;
         SDL_Surface *windowSurface = nullptr;
@@ -98,6 +100,9 @@ class app {
                 renderer = SDL_CreateRenderer(windowHandle, NULL);
                 TTF_Init();
             }
+
+            lastFrameTicksNs = SDL_GetTicksNS();
+            deltaTimeSeconds = 0.0f;
         }
 
         app() = default;
@@ -111,29 +116,36 @@ class app {
         }
 
         /**
-         * @brief Fills the window with color
-         * 
-         * If parameters are not specified, the current color is used.
-         * Or if a specific color needs to be kept, specify -1
+         * @brief Clears the window with the currently stored color
+         */
+        void clear() {
+            fill(color.r, color.g, color.b);
+        }
+
+        /**
+         * @brief Fill the window with the specified color
          * 
          * @param r Red component (0-255)
          * @param g Green component (0-255)
          * @param b Blue component (0-255)
          */
-        void fill(Uint8 r = -1, Uint8 g = -1, Uint8 b = -1) {
-            r = r == -1 ? color.r : r;
-            b = b == -1 ? color.b : b;
-            g = g == -1 ? color.g : g;
-
+        void fill(Uint8 r, Uint8 g, Uint8 b) {
             color.r = r;
             color.g = g;
             color.b = b;
 
-            renderer != nullptr 
+            renderer != nullptr
                 ? (SDL_SetRenderDrawColor(renderer, r, g, b, 255), SDL_RenderClear(renderer))
                 : SDL_FillSurfaceRect(windowSurface, NULL, SDL_MapSurfaceRGB(windowSurface, r, g, b));
         }
 
+        /**
+         * @brief Backward-compatible alias for clear()
+         */
+        void fill() {
+            clear();
+        }
+        
         /**
          * @brief Updates the contents of the window
          * 
@@ -141,6 +153,17 @@ class app {
          */
         void update() {
             renderer != nullptr ? SDL_RenderPresent(renderer) :  SDL_UpdateWindowSurface(windowHandle);
+
+            const Uint64 now = SDL_GetTicksNS();
+            deltaTimeSeconds = static_cast<float>(now - lastFrameTicksNs) / 1000000000.0f;
+            lastFrameTicksNs = now;
+        }
+
+        /**
+         * @brief Returns the duration of the previous frame in seconds
+         */
+        float deltaTime() const {
+            return deltaTimeSeconds;
         }
         
         /**
@@ -229,6 +252,8 @@ class app {
                 windowHandle = nullptr;
             }
             windowSurface = nullptr;
+            lastFrameTicksNs = 0;
+            deltaTimeSeconds = 0.0f;
             TTF_Quit();
             SDL_Quit();
         }
