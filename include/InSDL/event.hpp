@@ -1,22 +1,22 @@
-#ifndef EVENT
-#define EVENT
+#ifndef INSDL_EVENT
+#define INSDL_EVENT
 
-#include <app.hpp>
+#include <InSDL/app.hpp>
 #include <functional>
 
-using namespace std;
+namespace insdl {
 
 /**
  * @note Not used
  * @brief Handles the application quit event
- *  
+ *
  * @param app Reference to your application object
  */
-void exitEvent(app& app) {
+void exitEvent(app& application) {
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
         if (event.type == SDL_EVENT_QUIT) {
-            app.quit = true;
+            application.quit = true;
         }
     }
 }
@@ -29,46 +29,56 @@ void exitEvent(app& app) {
  * 
  * @param app Reference to your application object
  */
-void handleEvent(app& app) {
+void handleEvent(app& application) {
+    application.input.beginFrame();
+
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
         if (event.type == SDL_EVENT_QUIT) {
-            app.quit = true;
+            application.quit = true;
         } 
          else if (event.type == SDL_EVENT_KEY_DOWN) {
             SDL_Scancode scancode = event.key.scancode;
-            for (auto& binding : app.keyBindings) {
+            application.input.setKeyDown(scancode);
+
+            for (auto& binding : application.keyBindings) {
                 if (binding.key == scancode) {
-                    binding.func();
+                    binding.callback();
                     break;
                 }
             }
         }
         else if (event.type == SDL_EVENT_KEY_UP) {
             SDL_Scancode scancode = event.key.scancode;
-            for (auto &binding : app.keyUpBindings) {
+            application.input.setKeyUp(scancode);
+
+            for (auto &binding : application.keyUpBindings) {
                 if (scancode == binding.key) {
-                    binding.func();
+                    binding.callback();
                     break;
                 }
             }
         }
         else if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
-            for (const auto& binding : app.mouseBindings) {
+            for (const auto& binding : application.mouseBindings) {
                 if (binding.button == event.button.button) {
-                    binding.func();
+                    binding.callback();
                     break;
                 }
             }
         }
         else if (event.type == SDL_EVENT_MOUSE_MOTION) {
-            int x = event.motion.x;
-            int y = event.motion.y;
-            for (const auto& binding : app.mouseMotionBindings) {
-                binding.func(x, y);
+            int x = static_cast<int>(event.motion.x);
+            int y = static_cast<int>(event.motion.y);
+            application.input.setMousePosition(event.motion.x, event.motion.y);
+
+            for (const auto& binding : application.mouseMotionBindings) {
+                binding.callback(x, y);
             }
         }
     }
 }
+
+} // namespace insdl
 
 #endif
