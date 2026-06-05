@@ -1,5 +1,5 @@
-#ifndef EVENT
-#define EVENT
+#ifndef INSDL_EVENT
+#define INSDL_EVENT
 
 #include <app.hpp>
 #include <functional>

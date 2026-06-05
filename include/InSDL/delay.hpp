@@ -1,5 +1,5 @@
-#ifndef DELAY
-#define DELAY
+#ifndef INSDL_DELAY
+#define INSDL_DELAY
 
 #include <iostream>
 #include <chrono>

@@ -9,7 +9,6 @@ img.bmp
 font.ttf
 !include/InSDL/font.ttf
 audio.wav
-.vscode/*.json
-!.vscode/tasks.json
 _release
 _archive
+TODO.md

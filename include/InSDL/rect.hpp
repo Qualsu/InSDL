@@ -1,5 +1,5 @@
-#ifndef RECT
-#define RECT
+#ifndef INSDL_RECT
+#define INSDL_RECT
 #include <SDL3/SDL.h>
 #include <iostream>
 #include <variant>

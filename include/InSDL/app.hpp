@@ -1,5 +1,5 @@
-#ifndef APP
-#define APP
+#ifndef INSDL_APP
+#define INSDL_APP
 
 #include <string>
 #include <iostream>

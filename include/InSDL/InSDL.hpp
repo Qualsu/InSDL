@@ -1,5 +1,5 @@
-#ifndef INCLUDES
-#define INCLUDES
+#ifndef INSDL_INCLUDES
+#define INSDL_INCLUDES
 
 #include <app.hpp>
 #include <event.hpp>

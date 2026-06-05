@@ -1,5 +1,5 @@
-#ifndef TEXTURE
-#define TEXTURE
+#ifndef INSDL_TEXTURE
+#define INSDL_TEXTURE
 
 #include <SDL3/SDL.h>
 #include <SDL3_image/SDL_image.h>

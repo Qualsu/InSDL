@@ -1,5 +1,5 @@
-#ifndef AUDIO
-#define AUDIO
+#ifndef INSDL_AUDIO
+#define INSDL_AUDIO
 
 #include <SDL3/SDL.h>
 #include <iostream>
