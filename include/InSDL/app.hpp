@@ -23,16 +23,16 @@ class app {
     private:
         struct keyBindStruct {
             SDL_Scancode key;
-            std::function<void()> func;
+            std::function<void()> callback;
         };
 
         struct mouseBindStruct {
             Uint8 button;
-            std::function<void()> func;
+            std::function<void()> callback;
         };
 
         struct mouseMotionBindStruct {
-            std::function<void(int, int)> func;
+            std::function<void(int, int)> callback;
         };
 
         struct colorStruct {
@@ -60,15 +60,15 @@ class app {
             window.height = height;
             window.name = name;
 
-            SDLWindow = SDL_CreateWindow(name.c_str(), width, height, 0);
+            windowHandle = SDL_CreateWindow(name.c_str(), width, height, 0);
         }
 
-        char buffer[1024];
-        char* pathname = getcwd(buffer, 1024);
+        char pathBuffer[1024];
+        [[maybe_unused]] char* currentPath = getcwd(pathBuffer, 1024);
     public:
-        SDL_Window *SDLWindow;
-        SDL_Surface *SDLSurface = nullptr;
-        SDL_Renderer *SDLRender = nullptr;
+        SDL_Window *windowHandle = nullptr;
+        SDL_Surface *windowSurface = nullptr;
+        SDL_Renderer *renderer = nullptr;
         bool quit = false; // flag for quitting the application
         std::vector<keyBindStruct> keyBindings;
         std::vector<keyBindStruct> keyUpBindings;
@@ -76,7 +76,7 @@ class app {
         std::vector<mouseMotionBindStruct> mouseMotionBindings;
         colorStruct color;
         windowStruct window;
-        std::string font = std::string(buffer) + "\\include\\InSDL\\font.ttf"; // default font for text rendering
+        std::string font = std::string(pathBuffer) + "\\include\\InSDL\\font.ttf"; // default font for text rendering
 
         /**
          * @brief Initializes the application: creates a window, sets the rendering mode, and the default font
@@ -84,18 +84,18 @@ class app {
          * @param width Width of the window
          * @param height Height of the window
          * @param name Name of the window
-         * @param render Use Renderer (true) or Surface (false)
-         * @param fontpath Path to the font file (optional)
+         * @param surface Use Renderer (true) or Surface (false)
+         * @param fontPath Path to the font file (optional)
          */
-        void init(int width, int height, std::string name, bool surface = false, std::string fontpath = "") {
+        void init(int width, int height, std::string name, bool surface = false, std::string fontPath = "") {
             createWindow(width, height, name);
-            font = fontpath.empty() ? font : fontpath;
+            font = fontPath.empty() ? font : fontPath;
 
             if (surface) {
-                SDLSurface = SDL_GetWindowSurface(SDLWindow);
-                SDL_FillSurfaceRect(SDLSurface, NULL, SDL_MapSurfaceRGB(SDLSurface, 0, 0, 0));
+                windowSurface = SDL_GetWindowSurface(windowHandle);
+                SDL_FillSurfaceRect(windowSurface, NULL, SDL_MapSurfaceRGB(windowSurface, 0, 0, 0));
             } else {
-                SDLRender = SDL_CreateRenderer(SDLWindow, NULL);
+                renderer = SDL_CreateRenderer(windowHandle, NULL);
                 TTF_Init();
             }
         }
@@ -129,9 +129,9 @@ class app {
             color.g = g;
             color.b = b;
 
-            SDLRender != nullptr 
-                ? (SDL_SetRenderDrawColor(SDLRender, r, g, b, 255), SDL_RenderClear(SDLRender))
-                : SDL_FillSurfaceRect(SDLSurface, NULL, SDL_MapSurfaceRGB(SDLSurface, r, g, b));
+            renderer != nullptr 
+                ? (SDL_SetRenderDrawColor(renderer, r, g, b, 255), SDL_RenderClear(renderer))
+                : SDL_FillSurfaceRect(windowSurface, NULL, SDL_MapSurfaceRGB(windowSurface, r, g, b));
         }
 
         /**
@@ -140,7 +140,7 @@ class app {
          * Depending on the rendering mode, either the Renderer or Surface will be updated
          */
         void update() {
-            SDLRender != nullptr ? SDL_RenderPresent(SDLRender) :  SDL_UpdateWindowSurface(SDLWindow);
+            renderer != nullptr ? SDL_RenderPresent(renderer) :  SDL_UpdateWindowSurface(windowHandle);
         }
         
         /**
@@ -150,16 +150,16 @@ class app {
          */
         void setIcon(const texture& icon) {
             SDL_Surface *iconSurface = icon.get().surface;
-            SDL_SetWindowIcon(SDLWindow, iconSurface);
+            SDL_SetWindowIcon(windowHandle, iconSurface);
         }
 
         /**
          * @brief Sets the path to the font
          * 
-         * @param fontpath Path to the font file
+         * @param fontPath Path to the font file
          */
-        void setFont(std::string fontpath){
-            font = fontpath;
+        void setFont(std::string fontPath){
+            font = fontPath;
         }
 
         /**
@@ -174,8 +174,8 @@ class app {
             window.height = height == -1 ? window.height : height;
             window.name = name.empty() ? window.name : name;
 
-            SDL_SetWindowSize(SDLWindow, window.width, window.height);
-            SDL_SetWindowTitle(SDLWindow, window.name.c_str());
+            SDL_SetWindowSize(windowHandle, window.width, window.height);
+            SDL_SetWindowTitle(windowHandle, window.name.c_str());
         }
 
         /**
@@ -188,9 +188,9 @@ class app {
          * @param funcup Function called on release (optional)
          */
         template<typename Func, typename FuncUp>
-        void bindKey(SDL_Scancode key, Func func, FuncUp funcup = [](){}) {
+        void bindKey(SDL_Scancode key, Func func, FuncUp funcUp = [](){}) {
             keyBindings.push_back({ key, func });
-            keyUpBindings.push_back({ key, funcup });
+            keyUpBindings.push_back({ key, funcUp });
         }
 
         /**
@@ -220,15 +220,15 @@ class app {
          * @brief Terminates the application, frees SDL resources
          */
         void exit() {
-            if (SDLRender) {
-                SDL_DestroyRenderer(SDLRender);
-                SDLRender = nullptr;
+            if (renderer) {
+                SDL_DestroyRenderer(renderer);
+                renderer = nullptr;
             }
-            if (SDLWindow) {
-                SDL_DestroyWindow(SDLWindow);
-                SDLWindow = nullptr;
+            if (windowHandle) {
+                SDL_DestroyWindow(windowHandle);
+                windowHandle = nullptr;
             }
-            SDLSurface = nullptr;
+            windowSurface = nullptr;
             TTF_Quit();
             SDL_Quit();
         }

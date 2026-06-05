@@ -15,18 +15,17 @@
 
 int main()
 {
-    insdl::App myapp;
-    myapp.init(700, 700, "My InSDL Window");
+    insdl::App myApp;
+    myApp.init(700, 700, "My InSDL Window");
 
-    while (!myapp.quit) {
-        insdl::handleEvent(myapp);
+    while (!myApp.quit) {
+        insdl::handleEvent(myApp);
         
         // code here
 
-        myapp.update();
+        myApp.update();
     }
 
-    myapp.exit();
     return 0;
 }
 ```

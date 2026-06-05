@@ -12,7 +12,7 @@ namespace insdl {
  *
  * @param msec Number of milliseconds to delay
  */
-void delayms(int msec)
+void delayMs(int msec)
 {
     std::this_thread::sleep_for(std::chrono::milliseconds(msec));
 }
@@ -22,7 +22,7 @@ void delayms(int msec)
  * 
  * @param sec Number of seconds to delay
  */
-void delaysc(int sec)
+void delaySec(int sec)
 {
     std::this_thread::sleep_for(std::chrono::seconds(sec));
 }
@@ -32,7 +32,7 @@ void delaysc(int sec)
  * 
  * @param min Number of minutes to delay
  */
-void delaymn(int min)
+void delayMin(int min)
 {
     std::this_thread::sleep_for(std::chrono::minutes(min));
 }
@@ -42,7 +42,7 @@ void delaymn(int min)
  * 
  * @param hour Number of hours to delay
  */
-void delayhr(int hour)
+void delayHour(int hour)
 {
     std::this_thread::sleep_for(std::chrono::hours(hour));
 }

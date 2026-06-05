@@ -46,7 +46,7 @@ class rect {
         */
         rect(app& parent, int x = 0, int y = 0, int w = 0, int h = 0) {
             application = &parent;
-            surface = (parent.Surface != nullptr);
+            surface = (parent.windowSurface != nullptr);
             if (surface) {
                 data.rect = SDL_Rect{ x, y, w, h };
             } else {
@@ -351,7 +351,7 @@ class rect {
         *
         * @note Returns a copy, not a reference to internal data.
         */
-        rectData _get() {
+        rectData getData() {
             return data;
         }
 
@@ -372,10 +372,10 @@ class rect {
             data.color.g = g;
             data.color.b = b;
             if (surface) {
-                SDL_FillSurfaceRect(application->Surface, &std::get<SDL_Rect>(data.rect), SDL_MapSurfaceRGB(application->Surface, r, g, b));
+                SDL_FillSurfaceRect(application->windowSurface, &std::get<SDL_Rect>(data.rect), SDL_MapSurfaceRGB(application->windowSurface, r, g, b));
             } else {
-                SDL_SetRenderDrawColor(application->Render, r, g, b, 255);
-                SDL_RenderFillRect(application->Render, &std::get<SDL_FRect>(data.rect));
+                SDL_SetRenderDrawColor(application->renderer, r, g, b, 255);
+                SDL_RenderFillRect(application->renderer, &std::get<SDL_FRect>(data.rect));
             }
         }
 
@@ -389,8 +389,8 @@ class rect {
         * @param mode Flip mode: SDL_FLIP_NONE, SDL_FLIP_HORIZONTAL, or SDL_FLIP_VERTICAL (default: SDL_FLIP_NONE)
         * @param point Rotation center point relative to the rectangle (default: {0, 0} = top-left corner)
         */
-        void fillTexture(texture *texture, double deg = 0, SDL_FlipMode mode = SDL_FLIP_NONE, SDL_FPoint point = {0, 0}) {
-            SDL_RenderTextureRotated(application->Render, texture->get().texture, nullptr, &std::get<SDL_FRect>(data.rect), deg, &point, mode);
+        void fillTexture(texture *textureObject, double deg = 0, SDL_FlipMode mode = SDL_FLIP_NONE, SDL_FPoint point = {0, 0}) {
+            SDL_RenderTextureRotated(application->renderer, textureObject->get().texture, nullptr, &std::get<SDL_FRect>(data.rect), deg, &point, mode);
         }
 
         /**
@@ -398,8 +398,8 @@ class rect {
         *
         * @param text Pointer to the text object to render
         */
-        void fillText(text *text) {
-            SDL_RenderTexture(application->Render, text->get().texture, nullptr, &std::get<SDL_FRect>(data.rect));
+        void fillText(text *textObject) {
+            SDL_RenderTexture(application->renderer, textObject->get().texture, nullptr, &std::get<SDL_FRect>(data.rect));
         }
 
         /**
@@ -408,22 +408,22 @@ class rect {
         * Only applicable in Surface rendering mode
         */
         void update() {
-            SDL_FillSurfaceRect(application->Surface, &std::get<SDL_Rect>(data.rect), SDL_MapSurfaceRGB(application->Surface, data.color.r, data.color.g, data.color.b));
+            SDL_FillSurfaceRect(application->windowSurface, &std::get<SDL_Rect>(data.rect), SDL_MapSurfaceRGB(application->windowSurface, data.color.r, data.color.g, data.color.b));
         }
 
         /**
         * @brief Checks if the current rectangle intersects with another rectangle
         *
-        * @param otrect Reference to another rect object for intersection check
+        * @param otherRect Reference to another rect object for intersection check
         */
-        bool onTouch(rect& otrect) {
+        bool onTouch(rect& otherRect) {
             if (surface) {
                 auto a = std::get<SDL_Rect>(data.rect);
-                auto b = std::get<SDL_Rect>(otrect.data.rect);
+                auto b = std::get<SDL_Rect>(otherRect.data.rect);
                 return (a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y);
             } else {
                 auto a = std::get<SDL_FRect>(data.rect);
-                auto b = std::get<SDL_FRect>(otrect.data.rect);
+                auto b = std::get<SDL_FRect>(otherRect.data.rect);
                 return (a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y);
             }
         }

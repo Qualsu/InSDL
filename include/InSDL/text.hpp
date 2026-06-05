@@ -26,7 +26,7 @@ class text {
             std::string path;
         };
 
-        SDL_Renderer *Render = nullptr;
+        SDL_Renderer *renderer = nullptr;
         textData data;
 
         void destroyRendered() {
@@ -44,36 +44,36 @@ class text {
          * @brief Constructor that initializes text with a specified font, text, and color
          * 
          * Loads the font, creates a surface and texture for rendering the text
-         * To specify the font from the app object, provide the fontpath argument as - your_app_obj.font
+         * To specify the font from the app object, provide the fontPath argument as - yourApp.font
          * 
          * @param render SDL_Renderer for creating textures
          * @param text String of text to display
-         * @param fontpath Path to the font file
+         * @param fontPath Path to the font file
          * @param r Red component of color (0-255)
          * @param g Green component of color (0-255)
          * @param b Blue component of color (0-255)
          */
-        text(SDL_Renderer *render, const std::string& text, std::string fontpath, Uint8 r = 255, Uint8 g = 255, Uint8 b = 255) {
+        text(SDL_Renderer *renderer, const std::string& textContent, std::string fontPath, Uint8 r = 255, Uint8 g = 255, Uint8 b = 255) {
             data.color = {r, g, b, 255};
-            data.font = TTF_OpenFont(fontpath.c_str(), 128);
-            data.surface = TTF_RenderText_Solid(data.font, text.c_str(), text.length(), data.color);
-            data.texture = SDL_CreateTextureFromSurface(render, data.surface);
-            Render = render;
-            data.text = text;
-            data.path = fontpath;
+            data.font = TTF_OpenFont(fontPath.c_str(), 128);
+            data.surface = TTF_RenderText_Solid(data.font, textContent.c_str(), textContent.length(), data.color);
+            data.texture = SDL_CreateTextureFromSurface(renderer, data.surface);
+            this->renderer = renderer;
+            data.text = textContent;
+            data.path = fontPath;
         }
 
         text(const text&) = delete;
         text& operator=(const text&) = delete;
 
         text(text&& other) noexcept
-            : Render(std::exchange(other.Render, nullptr)),
+            : renderer(std::exchange(other.renderer, nullptr)),
               data(std::exchange(other.data, textData{})) {}
 
         text& operator=(text&& other) noexcept {
             if (this != &other) {
                 destroy();
-                Render = std::exchange(other.Render, nullptr);
+                renderer = std::exchange(other.renderer, nullptr);
                 data = std::exchange(other.data, textData{});
             }
             return *this;
@@ -103,7 +103,7 @@ class text {
             destroyRendered();
 
             data.surface = TTF_RenderText_Solid(data.font, newText.c_str(), newText.length(), data.color);
-            data.texture = SDL_CreateTextureFromSurface(Render, data.surface);
+            data.texture = SDL_CreateTextureFromSurface(renderer, data.surface);
             data.text = newText;
         }
         
@@ -130,7 +130,7 @@ class text {
 
             data.color = {r, g, b, 255};
             data.surface = TTF_RenderText_Solid(data.font, data.text.c_str(), data.text.length(), data.color);
-            data.texture = SDL_CreateTextureFromSurface(Render, data.surface);
+            data.texture = SDL_CreateTextureFromSurface(renderer, data.surface);
         }
 
         /**

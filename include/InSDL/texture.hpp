@@ -30,10 +30,10 @@ class texture {
          * @param render SDL_Renderer for creating the texture
          * @param file Path to the image file
          */
-        texture(SDL_Renderer *render, std::string file) {
-            data.surface = IMG_Load(file.c_str());
-            data.texture = SDL_CreateTextureFromSurface(render, data.surface);
-            data.path = file;
+        texture(SDL_Renderer *renderer, std::string filePath) {
+            data.surface = IMG_Load(filePath.c_str());
+            data.texture = SDL_CreateTextureFromSurface(renderer, data.surface);
+            data.path = filePath;
         }
 
         texture(const texture&) = delete;

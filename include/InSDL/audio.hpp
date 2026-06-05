@@ -18,11 +18,11 @@ class audio {
     private:
         struct audioData {
             SDL_AudioSpec spec;
-            SDL_AudioStream* stream = NULL;
-            Uint8* wav_data = NULL;
-            Uint32 wav_data_len = 0;
-            SDL_AudioDeviceID device = 0;
-            std::string path;
+            SDL_AudioStream* audioStream = NULL;
+            Uint8* wavData = NULL;
+            Uint32 wavDataLen = 0;
+            SDL_AudioDeviceID deviceId = 0;
+            std::string filePath;
         };
 
         audioData data;
@@ -33,13 +33,13 @@ class audio {
          * @param wavPath Path to the WAV file
          */
         audio(const std::string& wavPath) {
-            SDL_LoadWAV(wavPath.c_str(), &data.spec, &data.wav_data, &data.wav_data_len);
+            SDL_LoadWAV(wavPath.c_str(), &data.spec, &data.wavData, &data.wavDataLen);
 
-            data.stream = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &data.spec, NULL, NULL);
-            data.device = SDL_GetAudioStreamDevice(data.stream);
-            data.path = wavPath;
+            data.audioStream = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &data.spec, NULL, NULL);
+            data.deviceId = SDL_GetAudioStreamDevice(data.audioStream);
+            data.filePath = wavPath;
 
-            SDL_ResumeAudioDevice(data.device);
+            SDL_ResumeAudioDevice(data.deviceId);
         }
 
         audio(const audio&) = delete;
@@ -64,11 +64,11 @@ class audio {
          * @brief Plays the audio
          */
         void play() {
-            if (!data.stream || !data.wav_data) {
+            if (!data.audioStream || !data.wavData) {
                 return;
             }
-            if (SDL_GetAudioStreamQueued(data.stream) < (int)data.wav_data_len) {
-                SDL_PutAudioStreamData(data.stream, data.wav_data, data.wav_data_len);
+            if (SDL_GetAudioStreamQueued(data.audioStream) < (int)data.wavDataLen) {
+                SDL_PutAudioStreamData(data.audioStream, data.wavData, data.wavDataLen);
             }
         }
 
@@ -76,8 +76,8 @@ class audio {
          * @brief Resumes audio playback
          */
         void resume() {
-            if (data.device) {
-                SDL_ResumeAudioDevice(data.device);
+            if (data.deviceId) {
+                SDL_ResumeAudioDevice(data.deviceId);
             }
         }
 
@@ -85,8 +85,8 @@ class audio {
          * @brief Pauses audio playback
          */
         void pause() {
-            if (data.device) {
-                SDL_PauseAudioDevice(data.device);
+            if (data.deviceId) {
+                SDL_PauseAudioDevice(data.deviceId);
             }
         }
 
@@ -96,18 +96,18 @@ class audio {
          * Closes the device, destroys the stream, and frees WAV data
          */
         void stop() {
-            if (data.device) {
-                SDL_PauseAudioDevice(data.device);
-                SDL_CloseAudioDevice(data.device);
-                data.device = 0;
+            if (data.deviceId) {
+                SDL_PauseAudioDevice(data.deviceId);
+                SDL_CloseAudioDevice(data.deviceId);
+                data.deviceId = 0;
             }
-            if (data.stream) {
-                SDL_DestroyAudioStream(data.stream);
-                data.stream = NULL;
+            if (data.audioStream) {
+                SDL_DestroyAudioStream(data.audioStream);
+                data.audioStream = NULL;
             }
-            if (data.wav_data) {
-                SDL_free(data.wav_data);
-                data.wav_data = NULL;
+            if (data.wavData) {
+                SDL_free(data.wavData);
+                data.wavData = NULL;
             }
         }
 
@@ -126,7 +126,7 @@ class audio {
          * Outputs the file path
          */
         friend std::ostream& operator<<(std::ostream& os, const audio& a) {
-            os << "Audio(path: \"" << a.data.path << "\")";
+            os << "Audio(path: \"" << a.data.filePath << "\")";
             return os;
         }
 };
